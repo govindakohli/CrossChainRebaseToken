@@ -78,5 +78,6 @@ contract RebaseToken is ERC20 {
         // set the users last updated timestamp to now
 
     }
+    
         
 }
