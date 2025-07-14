@@ -37,9 +37,9 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
     error RebaseToken__InterestRateCanOnlyDecrease(uint256 oldInterestRate, uint256 newInterestRate);
 
     //State variables//
-    uint256 private s_interestRate = 5e10;
     uint256 private constant PRECISION_FACTOR = 1e18;
     bytes32 private constant MINT_AND_BURN_ROLE = keccak256("MINT_AND_BURN_ROLE");
+    uint256 private s_interestRate = (5 * PRECISION_FACTOR) / 1e8;
 
     // Mapping ///
     mapping(address => uint256) private s_userInterestRate;
@@ -63,7 +63,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
 
     function setInterestrate(uint256 _newInterestrate) external onlyOwner {
         // set the interest rate
-        if (_newInterestrate < s_interestRate) {
+        if (_newInterestrate >= s_interestRate) {
             revert RebaseToken__InterestRateCanOnlyDecrease(s_interestRate, _newInterestrate);
         }
         s_interestRate = _newInterestrate;
@@ -97,9 +97,6 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
      */
 
     function burn(address _from, uint256 _amount) external onlyRole(MINT_AND_BURN_ROLE) {
-        if (_amount == type(uint256).max) {
-            _amount = balanceOf(_from);
-        }
         _mintAccruedInterest(_from);
         _burn(_from, _amount);
     }
